@@ -1,5 +1,9 @@
 # Eaglercraft 26.2 Workspace
 
+**Please note** that this project is still in the working. This template has no
+source code whatsoever in it and is just a AI made teavm template until I finish
+the actual port and upload it onto here. For now, u can try port with this ig
+
 Minecraft **Java Edition 26.2** → Eagler runtime → **TeaVM** → browser.
 
 A serious source-porting workspace that consumes a legitimate local decompile of
