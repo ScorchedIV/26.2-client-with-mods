@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>Eaglercraft 26.2 Single File Launcher</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: monospace;
+    }
+    #game-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      touch-action: none;
+    }
+    #loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      background: rgba(0, 10, 18, 0.9);
+      color: #dfffe2;
+      font-size: 18px;
+      letter-spacing: 0.04em;
+    }
+    #loading.hidden { display: none; }
+    #loadstatus { margin-left: 0.5em; }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas" tabindex="0"></canvas>
+  </div>
+
+  <div id="loading">Loading Eaglercraft 26.2… <span id="loadstatus"></span></div>
+
+  <script>
+    const candidatePaths = [
+      './dist/client/classes.js',
+      './target_teavm_javascript/javascript/classes.js',
+      './classes.js'
+    ];
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = false;
+        script.onload = () => resolve(src);
+        script.onerror = () => reject(new Error('Failed to load ' + src));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function boot() {
+      const loading = document.getElementById('loading');
+      const status = document.getElementById('loadstatus');
+      let lastError = null;
+
+      for (const path of candidatePaths) {
+        try {
+          await loadScript(path);
+          status.textContent = '(loaded: ' + path + ')';
+
+          if (typeof window.main === 'function') {
+            loading.classList.add('hidden');
+            window.main();
+            return;
+          }
+
+          if (typeof window.main_ === 'function') {
+            loading.classList.add('hidden');
+            window.main_();
+            return;
+          }
+
+          throw new Error('TeaVM entry point not found in ' + path);
+        } catch (err) {
+          lastError = err;
+          status.textContent = '(retrying…)';
+        }
+      }
+
+      status.textContent = ' (error: ' + (lastError ? lastError.message : 'No client build found') + ')';
+      console.error(lastError || 'No TeaVM client build was found.');
+    }
+
+    window.addEventListener('load', boot);
+  </script>
+</body>
+</html>
